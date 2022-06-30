@@ -23,14 +23,13 @@ public class EmployeesDao {
     public static int id_user = 0;
     public static String full_name_user = "";
     public static String username_user = "";
-    public static String address_user = "";
+    public static String address_user = ""; 
     public static String telephone_user = "";
     public static String email_user = "";
     public static String rol_user = "";
     
     
     //METODO DEL LOGIN
-    
     public Employees loginQuery(String user, String password){
         String query = "SELECT * FROM employees WHERE username = ? AND password = ?";
         Employees employee = new Employees();
@@ -78,7 +77,7 @@ public class EmployeesDao {
         return employee;
     }
     
-    
+    //REGISTRAR EMPLEADO
     public boolean registerEmployeeQuery(Employees employee){
          String query = "INSER INTO employees(id, full_name, username, address, telephone, email "
                  + "password, rol, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)";
@@ -104,11 +103,12 @@ public class EmployeesDao {
              return true;
              
          }catch(SQLException e){
-             JOptionPane.showMessageDialog(null, "Error al registrar el usuario "+ e);
+             JOptionPane.showMessageDialog(null, "Error al registrar el empleado "+ e);
              return false;
          }
     }
 
+    //LISTAR EMPLEADO
     public List listEmployeesQuery(String value){
      //metodo que retorna una lista, value va funcionar para el buscador
         List<Employees> list_employees = new ArrayList();
@@ -141,5 +141,65 @@ public class EmployeesDao {
             JOptionPane.showMessageDialog(null, e.toString());
         }
         return list_employees;
+    }
+
+   //MODIFICAR EMPLEADO
+    public boolean updateEmployeeQuery(Employees employee){
+         String query = "UPDATE employees SET(full_name = ?, username = ?, address = ?, telephone = ?, email = ?, rol = ?, updated = ?"
+                 + "WHERE id = ?)";
+         
+         Timestamp datetime = new Timestamp(new Date().getTime());//sirve para tener la fecha exacta, lo proporciona Java
+         
+         try{
+             conn = cn.getConnection();
+             pst = conn.prepareStatement(query);
+             //acceder a los metodos Setter del empleado para enviar los datos q se registraran en la DB
+             pst.setString(1, employee.getFull_name());
+             pst.setString(2, employee.getUsername());
+             pst.setString(3, employee.getAddress());
+             pst.setString(4, employee.getTelephone());
+             pst.setString(5, employee.getEmail());
+             pst.setString(6, employee.getRol());
+             pst.setTimestamp(7, datetime);
+             pst.setInt(8, employee.getId());
+             pst.execute();//ejecutamos la sentencia sql (variable query)
+             return true;
+             
+         }catch(SQLException e){
+             JOptionPane.showMessageDialog(null, "Error al modificar los datos de empleado  "+ e);
+             return false;
+         }
+    }
+
+    //ELIMINAR EMPLEADO
+    public boolean deleteEmployeeQuery(int id){
+        String query = "DELETE FROM empleyees WHERE id = " + id;
+        
+        try{
+            conn = cn.getConnection();
+            pst = conn.prepareStatement(query);
+            pst.execute();
+            return true;
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(null, "No puede eliminar un empleado que tenga relacion con otra tabla ");
+            return false;
+        }
+    }
+ 
+    //CAMBIAR PASSWORD
+    public boolean updateEmployeePassword(Employees employee){
+        String query = "UPDATE employees SET password = ? WHERE username = '" + username_user + "'";  
+        try{
+            conn = cn.getConnection();
+            pst = conn.prepareStatement(query);
+            pst.setString(1, employee.getPassword());
+            pst.executeUpdate();
+
+            return true;
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(null, "Error en cambiar password al empleado" + e);
+            return false;
+    }
+        
     }
 }
